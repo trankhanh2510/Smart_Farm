@@ -63,23 +63,30 @@ class Home extends StatelessWidget {
 
   SizedBox buildBtnPart(BuildContext context) => SizedBox(
         height: Get.height * 0.25,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CustomWidget.homeBtn(
-                onTap: () {
-                  Get.toNamed('/take_picture');
-                },
-                title: 'Start Camera',
-                icon: Icons.camera_alt),
-            SizedBox(height: Get.height * 0.03),
-            CustomWidget.homeBtn(
-              onTap: choosePicture,
-              title: 'Open Gallery',
-              icon: Icons.photo,
-            ),
-          ],
+        child: Obx(() {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomWidget.homeBtn(
+                    onTap: Get.find<HomeController>().detecting.value == true
+                        ? () {}
+                        : () {
+                            Get.toNamed('/take_picture');
+                          },
+                    title: 'Start Camera',
+                    icon: Icons.camera_alt),
+                SizedBox(height: Get.height * 0.03),
+                CustomWidget.homeBtn(
+                  onTap: Get.find<HomeController>().detecting.value == true
+                      ? () {}
+                      : choosePicture,
+                  title: 'Open Gallery',
+                  icon: Icons.photo,
+                ),
+              ],
+            );
+          }
         ),
       );
 
