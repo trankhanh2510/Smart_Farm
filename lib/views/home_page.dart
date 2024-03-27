@@ -1,196 +1,252 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smart_farm/api/api_service.dart';
+import 'package:smart_farm/config/app_colors.dart';
+import 'package:smart_farm/controller/home_controller.dart';
+import 'package:smart_farm/widgets/customWidget.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
+  void detectPicture() async {
+    Get.find<HomeController>().detecting.value = true;
+    // Lấy dữ liệu nhị phân của hình ảnh
+    // String result = await postImage(File(imagePath));
+    String result = await postImage(
+        imageFileToBase64(Get.find<HomeController>().image.value.path));
+    // log("result: $result"); // In kết quả từ server // Back to the previous screen (TakePictureScreen)
+    // Chuyển đổi chuỗi JSON thành một Map<String, dynamic>
+    Map<String, dynamic> jsonResponse = jsonDecode(result);
+    Get.find<HomeController>().result.value = jsonResponse;
+    Get.find<HomeController>().detecting.value = false;
+  }
+
+  void choosePicture() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      Get.find<HomeController>().image.value = pickedImage;
+      Get.find<HomeController>().result.value = {};
+      Get.back();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: Center(
-        child: Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TakePictureScreen(),
-                  ),
-                );
-              },
-              child: const Text('Open Camera'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final picker = ImagePicker();
-                final pickedImage =
-                    await picker.pickImage(source: ImageSource.gallery);
-                if (pickedImage != null) {
-                  String result =
-                      await postImage(imageFileToBase64(pickedImage.path));
-                  Map<String, dynamic> jsonResponse = jsonDecode(result);
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Predicted Class'),
-                        content: Text(jsonResponse['predicted_class']),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+      body: Column(children: [
+        buildBtnPart(context),
+        const Divider(),
+        Expanded(
+          child: Center(
+            child: Obx(() {
+              if (Get.find<HomeController>().image.value.path != '') {
+                if (Get.find<HomeController>().result.isEmpty) {
+                  return buildResultPart();
                 }
-              },
-              child: const Text('Open Gallery'),
-            ),
-          ],
+                return buildResultInfoPart();
+              }
+              return const Text('Vui lòng chọn ảnh hoặc chụp ảnh mới!');
+            }),
+          ),
         ),
-      ),
+      ]),
     );
   }
-}
 
-class TakePictureScreen extends StatefulWidget {
-  const TakePictureScreen({super.key});
-
-  @override
-  _TakePictureScreenState createState() => _TakePictureScreenState();
-}
-
-class _TakePictureScreenState extends State<TakePictureScreen> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize the camera controller
-    _controller = CameraController(
-      const CameraDescription(
-        name: '0',
-        lensDirection: CameraLensDirection.back,
-        sensorOrientation: -1,
-      ),
-      ResolutionPreset.medium,
-    );
-    _initializeControllerFuture = _controller.initialize();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Take a Picture')),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            await _initializeControllerFuture;
-            final image = await _controller.takePicture();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    DisplayPictureScreen(imagePath: image.path),
-              ),
-            );
-          } catch (e) {
-            log('Error taking picture: $e');
-          }
-        },
-        child: const Icon(Icons.camera),
-      ),
-    );
-  }
-}
-
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-
-  const DisplayPictureScreen({super.key, required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Display Picture')),
-      body: Center(
+  SizedBox buildBtnPart(BuildContext context) => SizedBox(
+        height: Get.height * 0.25,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.file(File(imagePath)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // Lấy dữ liệu nhị phân của hình ảnh
-                // String result = await postImage(File(imagePath));
-                String result = await postImage(imageFileToBase64(imagePath));
-                // log("result: $result"); // In kết quả từ server // Back to the previous screen (TakePictureScreen)
-                // Chuyển đổi chuỗi JSON thành một Map<String, dynamic>
-                Map<String, dynamic> jsonResponse = jsonDecode(result);
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Predicted Class'),
-                      content: Text(jsonResponse['predicted_class']),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: const Text('POST'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(
-                    context); // Back to the previous screen (TakePictureScreen)
-              },
-              child: const Text('Back'),
+            CustomWidget.homeBtn(
+                onTap: () {
+                  Get.toNamed('/take_picture');
+                },
+                title: 'Start Camera',
+                icon: Icons.camera_alt),
+            SizedBox(height: Get.height * 0.03),
+            CustomWidget.homeBtn(
+              onTap: choosePicture,
+              title: 'Open Gallery',
+              icon: Icons.photo,
             ),
           ],
         ),
+      );
+
+  SizedBox buildResultPart() => SizedBox(
+        height: Get.height * 0.72,
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.file(
+                File(Get.find<HomeController>().image.value.path),
+                height: Get.height * 0.6,
+                width: Get.width * 0.9,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(
+              height: Get.height * 0.03,
+            ),
+            Obx(() {
+              return CustomWidget.homeBtn(
+                title: 'DETECT',
+                textSize: 20,
+                height: Get.height * 0.06,
+                width: Get.width * 0.9,
+                onTap: () async {
+                  detectPicture();
+                },
+                loadingWidget:
+                    Get.find<HomeController>().detecting.value == true
+                        ? Center(
+                            child: LoadingAnimationWidget.staggeredDotsWave(
+                                color: AppColors.white, size: 30),
+                          )
+                        : null,
+              );
+            }),
+          ],
+        ),
+      );
+
+  SizedBox buildResultInfoPart() => SizedBox(
+        height: Get.height * 0.72,
+        child: Column(
+          children: [
+            Container(
+              alignment: Alignment.topCenter,
+              height: Get.height * 0.05,
+              child: Text(
+                Get.find<HomeController>().result['predicted_class'],
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.file(
+                File(Get.find<HomeController>().image.value.path),
+                height: Get.height * 0.45,
+                width: Get.width * 0.9,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(
+              height: Get.height * 0.03,
+            ),
+            Obx(() {
+              return CustomWidget.homeBtn(
+                title: 'DETECT',
+                textSize: 20,
+                height: Get.height * 0.06,
+                width: Get.width * 0.9,
+                onTap: () async {
+                  detectPicture();
+                },
+                loadingWidget:
+                    Get.find<HomeController>().detecting.value == true
+                        ? Center(
+                            child: LoadingAnimationWidget.staggeredDotsWave(
+                                color: AppColors.white, size: 30),
+                          )
+                        : null,
+              );
+            }),
+            SizedBox(
+              height: Get.height * 0.03,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomWidget.homeBtn(
+                      onTap: precautionDialog,
+                      color: AppColors.infoColor,
+                      title: 'Precaution',
+                      textSize: 20,
+                      height: Get.height * 0.06,
+                      width: Get.width * 0.42),
+                  CustomWidget.homeBtn(
+                      onTap: reportDialog,
+                      color: AppColors.dangerColor,
+                      textColor: AppColors.black,
+                      title: 'Report',
+                      textSize: 20,
+                      height: Get.height * 0.06,
+                      width: Get.width * 0.42),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+  void precautionDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text(Get.find<HomeController>().result['predicted_class']),
+        content: const Text('Disease info and precaution will be showed here!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text('Close'),
+          )
+        ],
+      ),
+    );
+  }
+
+  void reportDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Report'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Tell us what wrong!'),
+            TextField(
+              decoration: InputDecoration(
+                  hintText: 'Give us the true name of this disease!'),
+            )
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text('Sent'),
+          )
+        ],
       ),
     );
   }
 }
+
 
 // // Hàm gọi khi người dùng chụp ảnh hoặc chọn ảnh từ thư viện
 // void captureOrSelectImage() async {

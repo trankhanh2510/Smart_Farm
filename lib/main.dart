@@ -6,8 +6,10 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:smart_farm/utils/bindings.dart';
 import 'package:smart_farm/views/home_page.dart';
 import 'package:smart_farm/views/start_page.dart';
+import 'package:smart_farm/views/take_picture_screen.dart';
 import 'package:smart_farm/widgets/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
@@ -57,6 +59,7 @@ class MainApp extends StatelessWidget {
       enableLog: false,
       theme: ThemeApp.light(),
       initialRoute: "/",
+      initialBinding: InitialBindings(),
       getPages: [
         GetPage(
           name: "/",
@@ -71,10 +74,12 @@ class MainApp extends StatelessWidget {
             name: "/home",
             page: () => const Home(),
             transition: Transition.noTransition),
-        // GetPage(
-        //   name: "/sale_order",
-        //   page: () => const SaleOrderView(),
-        // ),
+        GetPage(
+          name: "/take_picture",
+          page: () => const TakePictureScreen(),
+          binding: CameraBindings(),
+          transition: Transition.noTransition,
+        ),
       ],
     );
   }
