@@ -16,7 +16,7 @@ dependencies:
   get:
   flutter_localizations:
     sdk: flutter
-  syncfusion_localizations: ^22.2.12
+  syncfusion_localizations: 27.1.58
   flutter_phoenix: ^1.1.1
   get_storage: ^2.1.1 
 
