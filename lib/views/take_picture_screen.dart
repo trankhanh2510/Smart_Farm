@@ -95,14 +95,14 @@ class TakePictureScreen extends StatelessWidget {
       );
 
   Widget takePictureBtn() => InkWell(
-    onTap: takePicture,
-    child: Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        shape: BoxShape.circle,
-      ),
-      width: Get.width * 0.15,
-      height: Get.width * 0.15,
-    ),
-  );
+        onTap: takePicture,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            shape: BoxShape.circle,
+          ),
+          width: Get.width * 0.15,
+          height: Get.width * 0.15,
+        ),
+      );
 }

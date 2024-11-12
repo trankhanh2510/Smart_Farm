@@ -1,5 +1,8 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_farm/views/home_page.dart';
+import 'package:smart_farm/views/picture_page.dart';
 
 class HomeController extends GetxController {
   // loading state variants
@@ -7,4 +10,10 @@ class HomeController extends GetxController {
   // data variants
   Rx<XFile> image = XFile('').obs;
   RxMap result = {}.obs;
+
+  List<Widget> pages = [
+    const HomePage(),
+    const PicturePage(),
+  ];
+  RxInt numPage = 0.obs;
 }

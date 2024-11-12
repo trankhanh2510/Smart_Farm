@@ -20,7 +20,8 @@ class CustomWidget {
     List<Widget> chilrenOnRow = [
       Text(
         title ?? '',
-        style: TextStyle(color: textColor ?? AppColors.white, fontSize: textSize ?? 16),
+        style: TextStyle(
+            color: textColor ?? AppColors.white, fontSize: textSize ?? 16),
       ),
     ];
     if (icon != null) {
@@ -41,11 +42,12 @@ class CustomWidget {
         ),
         width: width ?? Get.width * 0.5,
         height: height ?? Get.height * 0.05,
-        child: loadingWidget ?? Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: chilrenOnRow,
-        ),
+        child: loadingWidget ??
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: chilrenOnRow,
+            ),
       ),
     );
   }

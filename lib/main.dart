@@ -6,8 +6,10 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:smart_farm/main_page.dart';
 import 'package:smart_farm/utils/bindings.dart';
 import 'package:smart_farm/views/home_page.dart';
+import 'package:smart_farm/views/picture_page.dart';
 import 'package:smart_farm/views/start_page.dart';
 import 'package:smart_farm/views/take_picture_screen.dart';
 import 'package:smart_farm/widgets/theme.dart';
@@ -71,8 +73,8 @@ class MainApp extends StatelessWidget {
         //     binding: InitialBindings(),
         //     transition: Transition.noTransition),
         GetPage(
-            name: "/home",
-            page: () => const Home(),
+            name: "/picture",
+            page: () => const PicturePage(),
             transition: Transition.noTransition),
         GetPage(
           name: "/take_picture",
@@ -80,6 +82,8 @@ class MainApp extends StatelessWidget {
           binding: CameraBindings(),
           transition: Transition.noTransition,
         ),
+        GetPage(name: '/main', page: () => const MainPage()),
+        GetPage(name: '/home', page: () => const HomePage()),
       ],
     );
   }
