@@ -15,5 +15,10 @@ class HomeController extends GetxController {
     const HomePage(),
     const PicturePage(),
   ];
+  List<String> titles = [
+    'Trang chủ',
+    'Picture',
+    'Other',
+  ];
   RxInt numPage = 0.obs;
 }

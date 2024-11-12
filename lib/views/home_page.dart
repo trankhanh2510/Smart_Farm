@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Text('data'),
+            // Text('data'),
           ],
         ),
       ),
