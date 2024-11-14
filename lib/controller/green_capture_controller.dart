@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+// import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:smart_farm/objs/app_version.dart';
 import 'package:smart_farm/objs/image.dart';
 import 'package:smart_farm/objs/plant.dart';
+import 'package:smart_farm/services/app.dart';
 import 'package:smart_farm/services/crud.dart';
 import 'package:smart_farm/services/image.dart';
 import 'package:smart_farm/services/local_storage.dart';
@@ -32,6 +35,8 @@ class GreenCaptureController extends GetxController {
   Rx<Plant?> plantSelectedFilter = Rx(null);
   Rx<PlantType?> plantTypeSelectedFilter = Rx(null);
   Rx<PlantCondition?> plantConditionSelectedFilter = Rx(null);
+
+  RxBool hasInternet = false.obs;
 
   List<DialogBottomMenuItem> menus = [
     const DialogBottomMenuItem(
@@ -225,4 +230,36 @@ class GreenCaptureController extends GetxController {
     await getImages();
     isLoading.value = false;
   }
+
+  Future<void> _checkVersion() async {
+    AppVersion? appVersion = await AppService().hasNewVersion();
+    if (appVersion != null) {
+      bool check = await dialogConfirm(
+          content: appVersion.description != null
+              ? appVersion.description!
+              : "Đã có phiên bản mới [${appVersion.versionName}]",
+          ok: "Tải xuống",
+          cancel: "Để sau");
+      if (check) {
+        await dialogProgressDownload(handle: () async {
+          await AppService().downloadAndInstall(appVersion);
+        });
+      }
+    } else {
+      await AppService().deleteAPK();
+    }
+  }
+
+  // Future<void> _listen() async {
+  //   hasInternet.value = await ServerService().checkInternet();
+
+  //   Connectivity().onConnectivityChanged.listen((value) {
+  //     if (value.contains(ConnectivityResult.mobile) ||
+  //         value.contains(ConnectivityResult.wifi)) {
+  //       hasInternet.value = true;
+  //     } else {
+  //       hasInternet.value = false;
+  //     }
+  //   });
+  // }
 }
