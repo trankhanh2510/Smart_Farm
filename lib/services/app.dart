@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:smart_farm/objs/app_version.dart';
-import 'package:smart_farm/services/crud.dart';
 import 'package:smart_farm/utils/config.dart';
 import 'package:smart_farm/utils/init.dart';
 import 'package:smart_farm/utils/tool.dart';
