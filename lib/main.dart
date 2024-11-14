@@ -8,6 +8,12 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:smart_farm/main_page.dart';
 import 'package:smart_farm/utils/bindings.dart';
+import 'package:smart_farm/utils/init.dart';
+import 'package:smart_farm/views/green_capture/add_image_page.dart';
+import 'package:smart_farm/views/green_capture/edit_image_detail_screen.dart';
+import 'package:smart_farm/views/green_capture/green_capture_page.dart';
+import 'package:smart_farm/views/green_capture/image_management_screen.dart';
+import 'package:smart_farm/views/green_capture/image_view_screen.dart';
 import 'package:smart_farm/views/home_page.dart';
 import 'package:smart_farm/views/picture_page.dart';
 import 'package:smart_farm/views/start_page.dart';
@@ -29,12 +35,15 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   await GetStorage.init();
+
   Get.config(
     enableLog: false,
     defaultTransition: Transition.native,
   );
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+//init storage
+  await init();
 
   runApp(Phoenix(child: const MainApp()));
 }
@@ -84,6 +93,23 @@ class MainApp extends StatelessWidget {
         ),
         GetPage(name: '/main', page: () => const MainPage()),
         GetPage(name: '/home', page: () => const HomePage()),
+        GetPage(name: '/green_capture', page: () => const GreenCapturePage()),
+        GetPage(
+          name: "/add-image",
+          page: () => const AddImageScreen(),
+        ),
+        GetPage(
+          name: "/image-management",
+          page: () => const ImageManagementScreen(),
+        ),
+        GetPage(
+          name: "/image-view",
+          page: () => const ImageViewScreen(),
+        ),
+        GetPage(
+          name: "/edit-image-detail",
+          page: () => const EditImageDetailScreen(),
+        ),
       ],
     );
   }

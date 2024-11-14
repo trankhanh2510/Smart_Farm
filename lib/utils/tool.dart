@@ -1,8 +1,18 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 class Tool {
+  // ignore: non_constant_identifier_names
+  static Color appBar_bg = Colors.green;
+  // ignore: non_constant_identifier_names
+  static Color appBar_title = Colors.white;
+
   static String removeDiacritics(String str) {
     const vietnamese = 'aAeEoOuUiIdDyY';
     final vietnameseRegex = <RegExp>[
@@ -53,5 +63,42 @@ class Tool {
         ),
       );
     });
+  }
+
+  static void showError(dynamic e) {
+    if (e is TimeoutException) {
+      Fluttertoast.showToast(msg: "Không thể kết nối server");
+    }
+    if (e is DioException) {
+      if (e.response?.statusCode == 400) {
+        Fluttertoast.showToast(msg: "Yêu cầu không hợp lệ");
+        return;
+      }
+      if (e.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Không có xác thực");
+        return;
+      }
+      if (e.response?.statusCode == 403) {
+        Fluttertoast.showToast(msg: "Không được phép");
+        return;
+      }
+
+      if (e.response?.statusCode == 404) {
+        Fluttertoast.showToast(msg: "Chức năng không hợp lệ");
+        return;
+      }
+
+      if (e.response?.statusCode == 405) {
+        Fluttertoast.showToast(msg: "Phương thức yêu cầu không hợp lệ");
+        return;
+      }
+
+      if (e.response?.statusCode == 500) {
+        Fluttertoast.showToast(msg: "Lỗi server (500)");
+        return;
+      }
+    } else {
+      Fluttertoast.showToast(msg: "Error: $e");
+    }
   }
 }

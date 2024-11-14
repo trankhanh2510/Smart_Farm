@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_farm/controller/green_capture_controller.dart';
 import 'package:smart_farm/controller/home_controller.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -10,6 +11,11 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController homeController = Get.find<HomeController>();
+
+    Get.put(GreenCaptureController());
+    GreenCaptureController greenCaptureController =
+        Get.find<GreenCaptureController>();
+
     return Drawer(
       child: Container(
         width: Get.width * 0.5,
@@ -72,10 +78,11 @@ class MainDrawer extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    onTap: () {
+                    onTap: () async {
                       Get.back();
-                      // homeController.numPage.value = 1;
+                      homeController.numPage.value = 2;
                       // Get.toNamed('/home');
+                      await greenCaptureController.loadData();
                     },
                   ),
                 ],

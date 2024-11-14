@@ -6,11 +6,16 @@ class InitialBindings extends Bindings {
   @override
   Future dependencies() async {
     await homeController();
+    // await greenCaptureController();
   }
 
   Future<void> homeController() async {
     Get.put(HomeController());
   }
+
+  // Future<void> greenCaptureController() async {
+  //   Get.put(GreenCaptureController());
+  // }
 }
 
 class CameraBindings extends Bindings {
